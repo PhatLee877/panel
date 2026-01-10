@@ -1,0 +1,247 @@
+-- ================== WAIT ==================
+repeat task.wait() until game:IsLoaded()
+
+-- ================== SERVICES ==================
+local Players = game:GetService("Players")
+local TextChatService = game:GetService("TextChatService")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- ================== CHAT ==================
+local function sendChat(msg)
+	if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+		for _, ch in ipairs(TextChatService.TextChannels:GetChildren()) do
+			if ch:IsA("TextChannel") then
+				ch:SendAsync(msg)
+				return
+			end
+		end
+	else
+		player:Chat(msg)
+	end
+end
+
+-- ================== DATA ==================
+local FruitList = {
+	"FruitA","FruitB","FruitC","FruitD","FruitE",
+	"FruitF","FruitG","FruitH","FruitI","FruitJ"
+}
+
+local selectedFruit = "None"
+local currentMode = nil -- "add" | "clear" | nil
+
+-- ================== GUI ROOT ==================
+local gui = Instance.new("ScreenGui")
+gui.Name = "FruitCommandGUI"
+gui.ResetOnSpawn = false
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+gui.Parent = playerGui
+
+-- ======================================================
+-- ================== COMMAND GUI ======================
+-- ======================================================
+
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 300, 0, 360)
+frame.Position = UDim2.new(0.05,0,0.25,0)
+frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+frame.Active = true
+frame.Draggable = true
+frame.ZIndex = 1
+
+-- TITLE
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1,0,0,35)
+title.BackgroundColor3 = Color3.fromRGB(35,35,35)
+title.Text = "COMMAND PANEL"
+title.TextColor3 = Color3.fromRGB(0,255,120)
+title.Font = Enum.Font.GothamBold
+title.TextScaled = true
+title.ZIndex = 2
+
+-- MINIMIZE BUTTON
+local minimize = Instance.new("TextButton", frame)
+minimize.Size = UDim2.new(0,30,0,30)
+minimize.Position = UDim2.new(1,-35,0,2)
+minimize.Text = "-"
+minimize.Font = Enum.Font.GothamBold
+minimize.TextScaled = true
+minimize.BackgroundColor3 = Color3.fromRGB(80,80,80)
+minimize.TextColor3 = Color3.new(1,1,1)
+minimize.ZIndex = 3
+
+-- SCROLL
+local scroll = Instance.new("ScrollingFrame", frame)
+scroll.Position = UDim2.new(0,0,0,35)
+scroll.Size = UDim2.new(1,0,1,-35)
+scroll.CanvasSize = UDim2.new(0,0,0,500)
+scroll.ScrollBarImageTransparency = 0.2
+scroll.BackgroundTransparency = 1
+scroll.ZIndex = 2
+
+local layout = Instance.new("UIListLayout", scroll)
+layout.Padding = UDim.new(0,8)
+
+layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+	scroll.CanvasSize = UDim2.new(0,0,0,layout.AbsoluteContentSize.Y + 10)
+end)
+
+-- SELECT FRUIT BUTTON
+local selectFruit = Instance.new("TextButton", scroll)
+selectFruit.Size = UDim2.new(1,-20,0,35)
+selectFruit.Text = "Fruit: None"
+selectFruit.Font = Enum.Font.GothamBold
+selectFruit.TextScaled = true
+selectFruit.BackgroundColor3 = Color3.fromRGB(45,45,45)
+selectFruit.TextColor3 = Color3.new(1,1,1)
+selectFruit.ZIndex = 3
+
+-- BUTTON CREATOR
+local function makeCmd(text)
+	local b = Instance.new("TextButton", scroll)
+	b.Size = UDim2.new(1,-20,0,32)
+	b.Text = text
+	b.Font = Enum.Font.GothamBold
+	b.TextScaled = true
+	b.BackgroundColor3 = Color3.fromRGB(60,60,60)
+	b.TextColor3 = Color3.new(1,1,1)
+	b.ZIndex = 3
+
+	b.MouseButton1Click:Connect(function()
+		if text == ".add" then
+			currentMode = "add"
+		elseif text == ".clear" then
+			currentMode = "clear"
+		else
+			currentMode = nil
+			sendChat(text)
+		end
+	end)
+end
+
+-- COMMANDS
+makeCmd(".add")
+makeCmd(".clear")
+makeCmd(".addallfruit")
+makeCmd(".addallperm")
+makeCmd(".clearall")
+makeCmd(".tp")
+makeCmd(".accept")
+makeCmd(".cancel")
+
+-- ======================================================
+-- ================== FRUIT GUI ========================
+-- ======================================================
+
+local fruitGui = Instance.new("Frame", gui)
+fruitGui.Size = UDim2.new(0, 260, 0, 320)
+fruitGui.Position = UDim2.new(0.4,0,0.25,0)
+fruitGui.BackgroundColor3 = Color3.fromRGB(30,30,30)
+fruitGui.Visible = false
+fruitGui.Active = true
+fruitGui.Draggable = true
+fruitGui.ZIndex = 10
+
+-- TITLE
+local fTitle = Instance.new("TextLabel", fruitGui)
+fTitle.Size = UDim2.new(1,0,0,35)
+fTitle.BackgroundColor3 = Color3.fromRGB(40,40,40)
+fTitle.Text = "SELECT FRUIT"
+fTitle.TextColor3 = Color3.fromRGB(255,200,0)
+fTitle.Font = Enum.Font.GothamBold
+fTitle.TextScaled = true
+fTitle.ZIndex = 11
+
+-- SEARCH
+local search = Instance.new("TextBox", fruitGui)
+search.Position = UDim2.new(0.05,0,0,45)
+search.Size = UDim2.new(0.9,0,0,30)
+search.PlaceholderText = "Search fruit..."
+search.Text = ""
+search.Font = Enum.Font.Gotham
+search.TextScaled = true
+search.BackgroundColor3 = Color3.fromRGB(50,50,50)
+search.TextColor3 = Color3.new(1,1,1)
+search.ZIndex = 11
+
+-- SCROLL FRUIT
+local fruitScroll = Instance.new("ScrollingFrame", fruitGui)
+fruitScroll.Position = UDim2.new(0,0,0,80)
+fruitScroll.Size = UDim2.new(1,0,1,-80)
+fruitScroll.CanvasSize = UDim2.new(0,0,0,0)
+fruitScroll.ScrollBarImageTransparency = 0.2
+fruitScroll.BackgroundTransparency = 1
+fruitScroll.ZIndex = 11
+
+local fLayout = Instance.new("UIListLayout", fruitScroll)
+fLayout.Padding = UDim.new(0,6)
+
+fLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+	fruitScroll.CanvasSize = UDim2.new(0,0,0,fLayout.AbsoluteContentSize.Y + 10)
+end)
+
+-- FRUIT BUTTONS
+local fruitButtons = {}
+
+local function refreshFruits(filter)
+	for _, b in ipairs(fruitButtons) do b:Destroy() end
+	fruitButtons = {}
+
+	for _, fruit in ipairs(FruitList) do
+		if filter == "" or fruit:lower():find(filter:lower()) then
+			local b = Instance.new("TextButton", fruitScroll)
+			b.Size = UDim2.new(1,-20,0,30)
+			b.Text = fruit
+			b.Font = Enum.Font.GothamBold
+			b.TextScaled = true
+			b.BackgroundColor3 = Color3.fromRGB(55,55,55)
+			b.TextColor3 = Color3.new(1,1,1)
+			b.ZIndex = 12
+
+			b.MouseButton1Click:Connect(function()
+				selectedFruit = fruit
+				selectFruit.Text = "Fruit: "..fruit
+
+				if currentMode == "add" then
+					sendChat(".add "..fruit)
+				elseif currentMode == "clear" then
+					sendChat(".clear "..fruit)
+				end
+			end)
+
+			table.insert(fruitButtons, b)
+		end
+	end
+end
+
+refreshFruits("")
+
+search:GetPropertyChangedSignal("Text"):Connect(function()
+	refreshFruits(search.Text)
+end)
+
+-- TOGGLE FRUIT GUI
+selectFruit.MouseButton1Click:Connect(function()
+	fruitGui.Visible = not fruitGui.Visible
+end)
+
+-- ================== MINIMIZE LOGIC ==================
+local minimized = false
+local fullSize = frame.Size
+
+minimize.MouseButton1Click:Connect(function()
+	minimized = not minimized
+
+	if minimized then
+		frame.Size = UDim2.new(0,300,0,35)
+		scroll.Visible = false
+		fruitGui.Visible = false
+		minimize.Text = "+"
+	else
+		frame.Size = fullSize
+		scroll.Visible = true
+		minimize.Text = "-"
+	end
+end)
+
+print("✅ FULL FRUIT COMMAND GUI LOADED")
