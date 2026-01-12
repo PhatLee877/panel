@@ -24,7 +24,7 @@ end
 -- ================== DATA ==================
 local FruitList = {
 	"Glacier Eagle","Control","Ruby Diamond","Kitsune","Werewolf Tiger",
-	"Empyrean Kitsune","Divine Portal","Sadness Pain","Celestial Pain","Celebration Bomb",
+	"Empyrean Kitsune","Divine <Portal>","Sadness Pain","Celestial Pain","Celebration Bomb",
 	"Azura Bomb","Nuclear Bomb","Thermite Bomb","Green Lịghtning","Purple Lightning",
 	"Yellow Lightning","Red Lightning","Requiem Eagle","Matrix Eagle","Emerald Diamond",
 	"Rose Quartz Diamond","Topaz Diamond","Torment Pain","Frustration Pain","Super Spirit Pain"
